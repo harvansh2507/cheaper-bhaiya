@@ -3,19 +3,24 @@ const cors = require("cors");
 
 const app = express();
 
+
+// ========================================
+// BASIC SETUP
+// ========================================
+
 app.use(cors());
 app.use(express.json());
 
+// index.html aur baaki frontend files serve karega
+app.use(express.static(__dirname));
+
 
 // ========================================
-// CHEAPER BHAIYA - PRODUCT CONNECTORS
+// PRODUCT CONNECTORS
 // ========================================
 
-// Amazon connector
+// AMAZON
 async function searchAmazon(product) {
-
-    // Real Amazon API baad mein yahan connect hogi
-
     return [
         {
             platform: "Amazon",
@@ -29,11 +34,8 @@ async function searchAmazon(product) {
 }
 
 
-// Flipkart connector
+// FLIPKART
 async function searchFlipkart(product) {
-
-    // Real Flipkart API/approved feed baad mein yahan connect hoga
-
     return [
         {
             platform: "Flipkart",
@@ -47,11 +49,8 @@ async function searchFlipkart(product) {
 }
 
 
-// Croma connector
+// CROMA
 async function searchCroma(product) {
-
-    // Croma ka approved data source baad mein connect hoga
-
     return [
         {
             platform: "Croma",
@@ -66,54 +65,59 @@ async function searchCroma(product) {
 
 
 // ========================================
-// SEARCH ENGINE
+// PRODUCT SEARCH API
 // ========================================
 
 app.get("/api/search", async (req, res) => {
 
     const product = req.query.product;
 
-    if (!product) {
+    // Product name nahi diya
+    if (!product || product.trim() === "") {
         return res.status(400).json({
+            success: false,
             error: "Product name is required"
         });
     }
 
     try {
 
+        // Teeno platforms ko ek saath search karo
         const results = await Promise.all([
             searchAmazon(product),
             searchFlipkart(product),
             searchCroma(product)
         ]);
 
+        // Arrays ko ek single array mein convert karo
         const allProducts = results.flat();
 
-        // Available products only
+        // Sirf available products
         const availableProducts = allProducts.filter(
-            product => product.available
+            item => item.available
         );
 
-        // Cheapest price find karo
+        // Cheapest price
         if (availableProducts.length > 0) {
 
             const cheapestPrice = Math.min(
-                ...availableProducts.map(product => product.price)
+                ...availableProducts.map(item => item.price)
             );
 
-            availableProducts.forEach(product => {
+            availableProducts.forEach(item => {
 
-                product.cheapest =
-                    product.price === cheapestPrice;
+                item.cheapest =
+                    item.price === cheapestPrice;
 
             });
         }
 
-        // Cheapest first
+        // Cheapest product sabse upar
         availableProducts.sort(
             (a, b) => a.price - b.price
         );
 
+        // Response
         res.json({
             success: true,
             search: product,
@@ -123,7 +127,7 @@ app.get("/api/search", async (req, res) => {
 
     } catch (error) {
 
-        console.error(error);
+        console.error("Search error:", error);
 
         res.status(500).json({
             success: false,
@@ -134,13 +138,33 @@ app.get("/api/search", async (req, res) => {
 
 
 // ========================================
-// SERVER
+// HOME PAGE
 // ========================================
 
-app.listen(3000, () => {
-
-    console.log(
-        "Cheaper Bhaiya server running on http://localhost:3000"
-    );
-
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/index.html");
 });
+
+
+// ========================================
+// LOCAL SERVER
+// ========================================
+
+// Local laptop par server chalega.
+// Vercel par Vercel khud server handle karega.
+
+if (!process.env.VERCEL) {
+
+    app.listen(3000, () => {
+
+        console.log(
+            "Cheaper Bhaiya server running on http://localhost:3000"
+        );
+
+    });
+
+}
+
+
+// Vercel ke liye
+module.exports = app;
