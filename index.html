@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheaper Bhaiya</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #111827;
+        }
+
+        header {
+            background: white;
+            padding: 20px 8%;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #2563eb;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 70px 20px 40px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 19px;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            max-width: 700px;
+            margin: auto;
+            display: flex;
+            background: white;
+            padding: 8px;
+            border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 16px;
+            font-size: 17px;
+        }
+
+        .search-box button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 0 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #results {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .results-title {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+        }
+
+        .platform {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .price {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .cheapest {
+            color: #16a34a;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .buy-btn {
+            background: #111827;
+            color: white;
+            text-decoration: none;
+            padding: 11px 20px;
+            border-radius: 9px;
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            padding: 30px 20px;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            background: white;
+            padding: 25px;
+            width: 230px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .feature h3 {
+            margin: 10px 0;
+        }
+
+        .feature p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 25px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .search-box {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .search-box button {
+                padding: 15px;
+            }
+
+            .product-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        Cheaper <span>Bhaiya</span>
+    </div>
+</header>
+
+<section class="hero">
+
+    <h1>Find It Cheaper.</h1>
+
+    <p>
+        Search once. Compare prices. Buy from the cheapest store.
+    </p>
+
+    <div class="search-box">
+
+        <input
+            id="searchInput"
+            type="text"
+            placeholder="Search for a product..."
+        >
+
+        <button onclick="searchProduct()">
+            Search
+        </button>
+
+    </div>
+
+</section>
+
+<div id="results"></div>
+
+<section class="features">
+
+    <div class="feature">
+        <div style="font-size:35px;">🔍</div>
+        <h3>Search</h3>
+        <p>Search your favourite products in one place.</p>
+    </div>
+
+    <div class="feature">
+        <div style="font-size:35px;">💰</div>
+        <h3>Compare</h3>
+        <p>Compare prices across different shopping platforms.</p>
+    </div>
+
+    <div class="feature">
+        <div style="font-size:35px;">🏆</div>
+        <h3>Find Cheapest</h3>
+        <p>See where your product is available for the lowest price.</p>
+    </div>
+
+</section>
+
+<footer>
+    © 2026 Cheaper Bhaiya — Shop Smart.
+</footer>
+
+<script>
+
+async function searchProduct() {
+
+    const product = document
+        .getElementById("searchInput")
+        .value
+        .trim();
+
+    if (product === "") {
+        alert("Bhaiya, pehle product ka naam likho 😄");
+        return;
+    }
+
+    const results = document.getElementById("results");
+
+    results.innerHTML = `
+        <h2 class="results-title">
+            Searching for "${product}"... 🔍
+        </h2>
+    `;
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:3000/api/search?product=" +
+            encodeURIComponent(product)
+        );
+
+        const data = await response.json();
+
+        let html = `
+            <h2 class="results-title">
+                Results for "${data.product}"
+            </h2>
+        `;
+
+        data.results.forEach(item => {
+
+            html += `
+                <div class="product-card">
+
+                    <div>
+                        <div class="platform">
+                            ${item.platform}
+                        </div>
+
+                        <div class="price">
+                            ₹${item.price.toLocaleString("en-IN")}
+                        </div>
+
+                        ${
+                            item.cheapest
+                            ? '<div class="cheapest">🏆 CHEAPEST</div>'
+                            : ''
+                        }
+                    </div>
+
+                    <a
+                        class="buy-btn"
+                        href="#"
+                        onclick="alert('Real shopping link baad mein connect hoga!')"
+                    >
+                        Buy
+                    </a>
+
+                </div>
+            `;
+        });
+
+        results.innerHTML = html;
+
+    } catch (error) {
+
+        results.innerHTML = `
+            <div class="product-card">
+                ❌ Backend se connection nahi ho pa raha.
+            </div>
+        `;
+
+        console.error(error);
+    }
+}
+
+</script>
+
+</body>
+</html>
